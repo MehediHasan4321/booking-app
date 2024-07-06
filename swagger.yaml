@@ -1,0 +1,1332 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Bus-Booking-application
+  description: This our bus-booking application
+  
+  contact:
+    name: Mehedi Hasan
+    email: 126mehedi@gmail.com
+    url: http://example.com
+servers:
+  - description: development
+    url: http://localhost:8000/api/v1
+tags:
+  - name: Auth
+    description: This is only for authentication (public)
+  - name: User
+    description: This is only for user related (privet)
+  - name: Bus
+    description: This is only for Bus related api endpoing (privet)
+  - name: Booking
+    description: This is only for booknig related api endpoint (privet)
+
+paths:
+  '/auth/register':
+    post:
+      tags: [Auth]
+      description: This route will create a new user and store it database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Example Name
+                email:
+                  type: string
+                  format: email
+                  example: example@gmail.com
+                password:
+                  type: string
+                  format: password
+                  example: pass1234
+                role:
+                  type: string
+                  enum: ['user','owner','admin']
+                  default: 'user'
+                status:
+                  type: string
+                  enum: ['pending','approved','blocked']
+                  default: pending
+              required: [name, email, password]
+                 
+                
+      responses:
+        '201':
+          description: Register
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example: User Created Successfully
+                  data:
+                    type: object
+                    properties:
+                      accessToken: 
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: /auth/register
+                      login:
+                        type: string
+                        example: /auth/login
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: "#/components/responses/500"
+  '/auth/login':
+    post:
+      tags: [Auth]
+      description: Login
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                email: 
+                  type: string
+                  format: email
+                  example: example@gmail.com
+                password:
+                  type: string
+                  format: password
+                  example: pass1234
+      responses:
+        '200':
+          description: Login successful
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Login successfull
+                  data:
+                    type: object
+                    properties:
+                      accessToken: 
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5
+                  links:
+                    type: object
+                    properties:
+                      self: 
+                        type: string
+                        example: /auth/login
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  '/users':
+    get:
+      security:
+        - bearerAuth: []
+      description: Get all existing User
+      tags: [User]
+      parameters:
+        - in: query
+          name: sortBy
+          description: Sort Key
+          schema:
+            type: string
+            example: updatedAt
+        - in: query
+          name: sortType
+          description: Sort type (asc or dsc)
+          schema:
+            type: string
+            example: dsc
+        - in: query
+          name: role
+          description: filter User by role
+          schema:
+            type: string
+            enum: ['','user','owner','admin']
+            default: ''
+        - in: query
+          description: filter user by ther status
+          name: status
+          schema:
+            type: string
+            enum: ['','pending','approved','blocked']
+            default: ''
+        - in: query
+          description: Search 
+          name: search
+          schema:
+            type: string
+            example: ''
+      responses:
+        '200':
+          description: success
+          content:
+            'applicaiton/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:  
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/user'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: /users?query
+        '401': 
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  '/users/{id}':
+    get:
+      security:
+        - bearerAuth: []
+      tags: [User]
+      description: Get a single user
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '200':
+          description: success
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: success
+                  data:
+                   allOf:
+                    - $ref: '#/components/schemas/user'
+                    - type: object
+                      properties:
+                        booking:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/booking'
+                    - $ref: '#/components/schemas/timeStamp'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        "500":
+          $ref: '#/components/responses/500'
+    put:
+      security:
+        - bearerAuth: []
+      description: update an existing user using put
+      tags: [User]
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                _id:
+                  type: string
+                  example: 1
+                name:
+                  type: string
+                  example: Example Name
+                avatar:
+                  type: string
+                  example: https:s3.aws.com/busBooking/avater.jpg
+                phone:
+                  type: string
+                  example: +8801722643906
+                role:
+                  type: string
+                  example: user
+                status:
+                  type: string
+                  example: pending
+      
+      responses:
+        '200':
+          description: update success
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: User update successful
+                  data:
+                    $ref: '#/components/schemas/user'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/users/1'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: update an existing user's properties
+      tags: [User]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                propertiesName:
+                  type: string
+                  example: value
+      responses:
+        '200':
+          description: User's properties update successfully
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: User's properties update successfully
+                  data:
+                    $ref: '#/components/schemas/user'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/users/1'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      description: This route will delete an user permanently
+      tags: [User]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '204':
+          description: Delete an Item 
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 204
+                  message:
+                    type: string
+                    example: Item delete successfully
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  '/buses':
+    get:
+      description: Get all buses base on your query
+      tags: [Bus]
+      parameters:
+        - $ref: '#/components/parameters/locationQuery'
+        - $ref: '#/components/parameters/journeyDateQuery'
+      responses:
+        '200':
+          description: This API return a list of buses base on user query
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: in32
+                    example: 200
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bus'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: /buses?query
+                      seat:
+                        type: string
+                        example: /buses/1/seats
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/404'
+    post:
+      description: Create a new Bus
+      tags: [Bus]
+      security: 
+        - bearerAuth: []
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Orin
+                isAc:
+                  type: boolean
+                  enum: [true,false]
+                  default: false
+                seatPrice:
+                  type: integer
+                  format: int32
+                  example: 500
+                ownerId:
+                  type: string
+                  example: 1
+                seatClass:
+                  type: string
+                  enum: ['ecnomic','business','first class']
+                  default: ecnomic
+                totalSeat:
+                  type: integer
+                  format: int32
+                  example: 28
+                stopes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/stopes'
+      responses:
+        '201':
+          description: bus created successfully
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example: Success
+                  date:
+                    $ref: '#/components/schemas/bus'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/buses/1'
+                      seat:
+                        type: string
+                        example: '/buses/1/seats'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+  '/buses/{id}':
+    get:
+      description: Get a single bus by busId
+      tags: [Bus]
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '200':
+          description: success
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Success
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/bus'
+                      - $ref: '#/components/schemas/seats'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/buses/1'
+                      seat:
+                        type: string
+                        example: '/buses/1/seats'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/404'
+    put:
+      description: This API will update a hole bus information only admin or bus owner can update their bus
+      tags: [Bus]
+      security: 
+        - bearerAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/idPathParam'
+      requestBody:
+        content:
+          'application/json':
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Orin
+                  isAc:
+                    type: boolean
+                    example: false
+                  stopes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/stopes'
+                  totalSeat:
+                    type: integer
+                    format: int32
+                    example: 28
+                  seatPrice:
+                    type: integer
+                    format: int32
+                    example: 500
+                  seatClass:
+                    type: string
+                    enum: ['ecnomic','business','first class']
+                    default: ecnomic
+      responses:
+        '200':
+          description: 'update successful'
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: update successful
+                  data:
+                    $ref: '#/components/schemas/bus'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/buses/1'
+                      seat:
+                        type: string
+                        example: '/buses/1/seats'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: Update a single properties
+      tags: [Bus]
+      security: 
+        - bearerAuth: []
+      parameters: 
+       - $ref: '#/components/parameters/idPathParam'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                propertie:
+                  type: string
+                  example: value
+      responses:
+        '200':
+          description: Update a single propertie
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: update success
+                  data:
+                    $ref: '#/components/schemas/bus'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/buses/1'
+                      seat:
+                        type: string
+                        example: '/buses/1/seat'
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: '#/components/responses/403'
+        "404":
+          $ref: '#/components/responses/404'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      description: Delete a bus only for bus owner and admin
+      tags: [Bus]
+      security: 
+        - bearerAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '204':
+          description: delete succes
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 204
+                  message:
+                    type: string
+                    example: Resource Delete Successfully
+        '404':
+          $ref: '#/components/responses/404'
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: '#/components/responses/403'
+        "500":
+          $ref: '#/components/responses/500'
+  '/bookings':
+    get:
+      description: Get all booking base on user role
+      tags: [Booking]
+      security: 
+        - bearerAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortKey'
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/role'
+        - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: success
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/booking'
+                      - $ref: '#/components/schemas/timeStamp'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: /bookings?query
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      description: booked a bus's seat
+      tags: [Booking]
+      security: 
+        - bearerAuth: []
+        
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                journeyDate:
+                  type: string
+                  format: date-time
+                to:
+                  type: string
+                  example: Dhaka
+                from:
+                  type: string
+                  example: Gaibandh
+                seat:
+                  type: string
+                  example: A1
+                busId:
+                  type: string
+                  example: 1
+                status:
+                  type: string
+                  enum: ['pending','approved','completed']
+                  default: pending
+                userId:
+                  type: string
+                  example: 1
+                createdAt:
+                  type: string
+                  format: date-time
+                updatedAt:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: Successfully booked a seat
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example:  Congratulation!! You have Booked a seat.
+                  data:
+                    $ref: '#/components/schemas/booking'
+                  links:
+                    type: object
+                    properties:
+                      
+                      self:
+                        type: string
+                        example: '/bookings/1'
+                      bus:
+                        type: string
+                        example: '/bookings/1/buses'
+                      seat:
+                        type: string
+                        example: '/bookings/1/seats'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        "404":
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+  '/bookings/{id}':
+    get:
+      description: Get an single booking base on booking id
+      tags: [Booking]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '200':
+          description: get single booking
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Success
+                  data:
+                    $ref: '#/components/schemas/booking'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/booking/1'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      description: update a hole booking
+      tags: [Booking]
+      security:
+        - bearerAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/idPathParam'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/bookingBody'
+      responses:
+        '200':
+          description: update success
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/booking'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/bookings/1'
+                      bus:
+                        type: string
+                        example: '/bookings/1/buses'
+                      seat:
+                        type: string
+                        example: '/bookings/1/seats'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: update a single or multiple value of a booking
+      tags: [Booking]
+      security: 
+        - bearerAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/idPathParam'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/bookingBody'
+      responses:
+        '200':
+          description: success
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Update success
+                  data:
+                    $ref: '#/components/schemas/booking'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: '/bookings/1'
+                      bus:
+                        type: string
+                        example: /bookings/1/buses
+                      seat:
+                        type: string
+                        example: /bookings/1/seats
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      description: Delete a booking
+      tags: [Booking]
+      security: 
+        - bearerAuth: []
+      parameters: 
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '204':
+          description: Delete an Items from booking collection
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 204
+                  message:
+                    type: string
+                    example: You have delete a booking successfully
+                    
+# All components are here
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    
+  schemas:
+    'timeStamp':
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [updatedAt,createdAt]
+    'bus':
+      allOf:
+        - type: object
+          properties:
+            _id:
+              type: string
+              example: 1
+            name:
+              type: string
+              example: Orin
+            isAc:
+              type: boolean
+              example: false
+            rating:
+              type: integer
+              format: int32
+              example: 4.5
+            stopes:
+              type: array
+              items:
+                $ref: '#/components/schemas/stopes'
+            totalSeat:
+              type: integer
+              format: int32
+              example: 28
+            seatClass:
+              type: string
+              example: economic
+          required: [_id,name,isAc,stopes,totalSeat,seatClass]
+        - $ref: '#/components/schemas/timeStamp'
+    'stopes':
+      type: object
+      properties:
+        location:
+          type: string
+          example: Gaibandha
+        data:
+          type: string
+          format: date-time
+        isStartingPoint:
+          type: boolean
+          example: true
+        isEndPoint:
+          type: boolean
+          example: false
+    'seats':
+      allOf:
+      - type: object
+        properties:
+          _id: 
+            type: string
+            example: 1
+          busId:
+            type: string
+            example: 1
+          seat:
+            type: array
+            items:
+              type: object
+              properties:
+                name: 
+                  type: string
+                  example: A1
+                isBooked:
+                  type: boolean
+                  example: false
+                booking:
+                  type: object
+                  properties:
+                    userId:
+                      type: string
+                      example: 1
+                    date:
+                      type: string
+                      format: date-time
+                  
+        required: [_id,busId,seat]
+      - $ref: '#/components/schemas/timeStamp'  
+    
+    'user':
+      allOf:
+        - type: object
+          properties:
+            _id: 
+              type: string
+              example: 1
+            name:
+              type: string
+              example: Example User
+            email:
+              type: string
+              format: email
+              example: example@gmail.com
+            phone:
+              type: string
+              example: +8801722643906
+            avater:
+              type: string
+              example: https://aws.s3.com/bus-booking/avater.jpg
+            role:
+              type: string
+              example: user
+            status:
+              type: string
+              example: pending
+          required: [_id, name, email]
+        - $ref: '#/components/schemas/timeStamp'
+    'booking':
+      allOf:
+        - type: object
+          properties:
+            _id: 
+              type: string
+              example: 1
+            journeyDate:
+              type: string
+              format: date-time
+            seat:
+              type: string
+              example: A1
+            to:
+              type: string
+              example: Dhaka
+            from:
+              type: string
+              example: Rangpur
+            busId:
+              type: string
+              example: 1
+            status:
+              type: string
+              enum: ['pending','approved','completed']
+              default: pending
+            userId:
+              type: string
+              example: 1
+          required: [_id,bookingDate,journeyDate,seat,busId,userId,location, pickup,status]
+        - $ref: '#/components/schemas/timeStamp'
+    'bookingBody':
+      type: object
+      properties:
+        journeyDate:
+          type: string
+          format: date-time
+        to:
+          type: string
+          example: Gaibandh
+        from:
+          type: string
+          example: Dhaka
+        seat:
+          type: string
+          example: A1
+        status:
+          type: string
+          enum: ['pending','approved','completed']
+          default: pending
+        
+        
+      
+  responses:
+    "400":
+      description: Bad request
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code: 
+                type: integer
+                format: int32
+                example: 400
+              error:
+                type: string
+                example: Bad Request
+              message:
+                type: string
+                example: Serve can not process the request
+    "404":
+      description: Not found
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code: 
+                type: integer
+                example: 404
+              error:
+                type: integer
+                example: Not Found
+              message:
+                type: string
+                example: Requested Resource Not Found
+    "401":
+      description: Unauthenticated
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 401
+              error:
+                type: string
+                example: Unauthenticated
+              message:
+                type: string
+                example: Invalied credentials
+    "403":
+      description: Unauthorized
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code: 
+                type: integer
+                format: int32
+                example: 403
+              error:
+                type: string
+                example: Unauthorized
+              message:
+                type: string
+                example: You don't have the right permission
+    "409": 
+      description: Confilict
+      content: 
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code: 
+                type: integer
+                format: int32
+                example: 409
+              error:
+                type: string
+                example: Conflict
+              message:
+                type: string
+                example: Your request not possible at this time
+    "500":
+      description: Server Error
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              code: 
+                type: integer
+                format: int32
+                example: 500
+              error:
+                type: string
+                example: Internal Server error
+              message:
+                type: string
+                example: We are sorry for the inconvenient
+                
+  parameters:
+    idPathParam:
+      in: path
+      name: id
+      description: Reqources Id
+      required: true
+      schema:
+        type: string
+        example: 1
+    locationQuery:
+      in: query
+      name: location
+      description: Your location
+      required: false
+      schema:
+        type: string
+        example: Dhaka
+        
+    
+    journeyDateQuery:
+      in: query
+      name: Journey Date
+      description: Your journey date
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: 2024-07-04T17:07:02.874Z
+        
+    sortBy:
+      in: query
+      name: sortBy
+      description: sort by asc or des order
+      required: false
+      schema:
+        type: string
+        enum: ['asc','dsc']
+        default: dsc
+    sortKey:
+      in: query
+      name: sortKey
+      description: select your sort key 
+      required: false
+      schema:
+        type: string
+        enum: ['createdAt','updatedAt']
+        default: createdAt
+    status:
+      in: query
+      name: status
+      description: Filter out by resources status 
+      schema:
+        type: string
+        enum: ['pending','approved','completed']
+        default: pending
+    role:
+      in: query
+      name: role
+      description: sort user by their role
+      required: false
+      schema:
+        type: string
+        enum: ['user','admin','owner']
+        default: user
+    search:
+      in: query
+      name: search
+      description: search your resource by search
+      schema:
+        type: string
+        example: ''
