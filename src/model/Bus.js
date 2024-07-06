@@ -30,7 +30,7 @@ const BusSchema = new Schema(
       required: true,
     },
     rating: {
-      type: String,
+      type: Number,
       default: 0,
     },
     stopes: {

@@ -16,4 +16,8 @@ router
   .get(busController.findAll)
   .post(authenticate,roleBasePermission(['owner','admin']),busController.create);
 
+
+  router.route('/api/v1/users').get()
+
+
 module.exports = router;
