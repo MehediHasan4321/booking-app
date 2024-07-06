@@ -10,14 +10,12 @@ const generateToken = ({
   try {
     return jwt.sign(payload, secrect, { algorithm, expiresIn });
   } catch (e) {
-    console.log("[JWT]", e);
+    console.log("[JWT]", e.message);
     throw serverError();
   }
 };
 
-const decoded = (token, payload) => {
-  jwt.decode(token);
-};
+
 
 const verifyToken = ({
   token,
@@ -27,7 +25,7 @@ const verifyToken = ({
     try {
         return jwt.verify(token,secrect,{algorithms:[algorithm]})
     } catch (e) {
-        console.log("[JWT]", e);
+        console.log("[JWT]", e.message);
     throw serverError();
     }
 };

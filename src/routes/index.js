@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const { controller: busController } = require("../api/v1/bus");
 const { controller: authController } = require("../api/v1/auth");
+const authenticate = require('../middleware/authenticate')
+const roleBasePermission = require('../middleware/roleBasePermission')
 
 // Auth related all route are here
 
@@ -12,6 +14,6 @@ router.route("/api/v1/auth/login").post(authController.login);
 router
   .route("/api/v1/buses")
   .get(busController.findAll)
-  .post(busController.create);
+  .post(authenticate,roleBasePermission(['owner','admin']),busController.create);
 
 module.exports = router;

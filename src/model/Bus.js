@@ -40,7 +40,7 @@ const BusSchema = new Schema(
             type: String,
             required: true,
           },
-          time: {
+          date: {
             type: Date,
             required: true,
           },

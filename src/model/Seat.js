@@ -6,36 +6,17 @@ const SeatSchema = new Schema({
         ref:"Bus",
         require: true
     },
+    ownerId:{
+        type:Schema.ObjectId,
+        ref:'User',
+        required:true
+    },
     seat:{
-        type: [
-            {
-                name: {
-                    type:String,
-                    required:true
-                },
-                isBooked:{
-                    type: Boolean,
-                    default: false
-                },
-                booking:{
-                    type: [{
-                        date: {
-                            type: Date,
-                            required:true
-                        },
-                        userId: {
-                            type: Schema.ObjectId,
-                            ref: "User",
-                            required:true
-                        }
-                    }]
-                }
-            }
-        ] ,
-        require: true
+        type:[{}],
+        required:true
     }
 },{timestamps:true})
 
-const Seats = model('SeatModel',SeatSchema)
+const Seats = model('Seats',SeatSchema)
 
 module.exports = Seats
