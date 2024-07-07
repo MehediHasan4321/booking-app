@@ -11,11 +11,11 @@ const applyMiddleware = (app)=>{
 
     app.use('/docs', swaggerUI.serve,swaggerUI.setup(swaggerDoc))
 
-    // app.use(openApiValidator.middleware({
-    //     apiSpec:'./swagger.yaml',
-    //     validateRequests:true,
-    //     validateResponses:true
-    // }))
+    app.use(openApiValidator.middleware({
+        apiSpec:'./swagger.yaml',
+        validateRequests:true,
+        validateResponses:false
+    }))
 }
 
 module.exports = applyMiddleware

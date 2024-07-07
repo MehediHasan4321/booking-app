@@ -1,12 +1,12 @@
 const router = require("express").Router();
 const { controller: busController } = require("../api/v1/bus");
 const { controller: authController } = require("../api/v1/auth");
-const authenticate = require('../middleware/authenticate')
-const roleBasePermission = require('../middleware/roleBasePermission')
+const authenticate = require("../middleware/authenticate");
+const roleBasePermission = require("../middleware/roleBasePermission");
 
 // Auth related all route are here
 
-router.route('/api/v1/auth/register').post(authController.register);
+router.route("/api/v1/auth/register").post(authController.register);
 router.route("/api/v1/auth/login").post(authController.login);
 
 // Bus related all ruter are here
@@ -14,14 +14,31 @@ router.route("/api/v1/auth/login").post(authController.login);
 router
   .route("/api/v1/buses")
   .get(busController.findAll)
-  .post(authenticate,roleBasePermission(['owner','admin']),busController.create);
+  .post(
+    authenticate,
+    roleBasePermission(["owner", "admin"]),
+    busController.create
+  );
 
-  router.route('/api/v1/buses/:id')
+router
+  .route("/api/v1/buses/:id")
   .get(busController.findSingle)
-  .put(authenticate,roleBasePermission('owner','admin'),busController.updateOrCreate)
-  .patch()
+  .put(
+    authenticate,
+    roleBasePermission(["owner", "admin"]),
+    busController.updateOrCreate
+  )
+  .patch(
+    authenticate,
+    roleBasePermission(["owner", "admin"]),
+    busController.updateByPatch
+  )
+  .delete(
+    authenticate,
+    roleBasePermission(["owner", "admin"]),
+    busController.removeItem
+  );
 
-  router.route('/api/v1/users').get()
-
+router.route("/api/v1/users").get();
 
 module.exports = router;
