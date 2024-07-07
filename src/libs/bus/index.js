@@ -1,7 +1,8 @@
 const { Bus } = require("../../model");
 const { createSeat } = require("./seat");
+const seatService = require("../seat");
+const { badRequest, notFound } = require("../../utils/error");
 
-const { badRequest } = require("../../utils/error");
 
 const create = async ({
   name = "bus name",
@@ -52,7 +53,51 @@ const findAll = async ({ location = "", date }) => {
   return bus;
 };
 
+const findSingle = async (id) => {
+  if (!id) throw badRequest();
+
+  const bus = await Bus.findById(id);
+
+  if (!bus) throw notFound();
+  const seat = await seatService.find(bus._id);
+  const result = {
+    ...bus._doc,
+    seat: seat.seat,
+  };
+
+  return result;
+};
+
+const updateOrCreate = async (
+  id,
+  { name, isAc = false, stopes = [], totalSeat, owner, price, seatClass = "ecnomic" }
+) => {
+  const bus = await Bus.findById(id)
+  
+  if(!bus) throw notFound()
+
+    const payload={
+      name,
+      isAc,
+      stopes,
+      totalSeat,
+      price,
+      seatClass,
+      ownerId:owner._id
+
+    }
+   
+    await bus.replaceOne(payload)
+    
+    await bus.save()
+   
+    return bus._doc
+
+};
+
 module.exports = {
   create,
   findAll,
+  findSingle,
+  updateOrCreate,
 };

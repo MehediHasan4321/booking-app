@@ -16,6 +16,10 @@ router
   .get(busController.findAll)
   .post(authenticate,roleBasePermission(['owner','admin']),busController.create);
 
+  router.route('/api/v1/buses/:id')
+  .get(busController.findSingle)
+  .put(authenticate,roleBasePermission('owner','admin'),busController.updateOrCreate)
+  .patch()
 
   router.route('/api/v1/users').get()
 
