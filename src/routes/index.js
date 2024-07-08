@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { controller: busController } = require("../api/v1/bus");
 const { controller: authController } = require("../api/v1/auth");
+const { controller: userController } = require("../api/v1/user");
 const authenticate = require("../middleware/authenticate");
 const roleBasePermission = require("../middleware/roleBasePermission");
 
@@ -39,6 +40,32 @@ router
     busController.removeItem
   );
 
-router.route("/api/v1/users").get();
+// User related all route a re here
 
+router
+  .route("/api/v1/users")
+  .get(authenticate, roleBasePermission(["admin"]), userController.findAll);
+
+router
+  .route("/api/v1/users/:id")
+  .get(
+    authenticate,
+    roleBasePermission(["user", "admin"]),
+    userController.findSingle
+  )
+  .put(
+    authenticate,
+    roleBasePermission(["admin"]),
+    userController.updateOrCreate
+  )
+  .patch(
+    authenticate,
+    roleBasePermission(["admin"]),
+    userController.updatePropertie
+  )
+  .delete(
+    authenticate,
+    roleBasePermission(['admin']),
+    userController.remove
+  )
 module.exports = router;
