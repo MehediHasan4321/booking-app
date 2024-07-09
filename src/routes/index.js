@@ -2,6 +2,7 @@ const router = require("express").Router();
 const { controller: busController } = require("../api/v1/bus");
 const { controller: authController } = require("../api/v1/auth");
 const { controller: userController } = require("../api/v1/user");
+const { controller: bookingController } = require("../api/v1/booking");
 const authenticate = require("../middleware/authenticate");
 const roleBasePermission = require("../middleware/roleBasePermission");
 
@@ -63,9 +64,23 @@ router
     roleBasePermission(["admin"]),
     userController.updatePropertie
   )
-  .delete(
+  .delete(authenticate, roleBasePermission(["admin"]), userController.remove);
+
+// Booking related all router are here
+
+router
+  .route("/api/v1/bookings")
+  .get(bookingController.findAll)
+  .post(authenticate, bookingController.create);
+router
+  .route("/api/v1/bookings/:id")
+  .get(
     authenticate,
-    roleBasePermission(['admin']),
-    userController.remove
+    roleBasePermission(["admin", "user", "owner"]),
+    bookingController.findSingle
   )
+  .put()
+  .patch()
+  .delete();
+
 module.exports = router;

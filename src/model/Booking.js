@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const BookingSchema = new Schema(
   {
-    journeyDate: {
+    date: {
       type: Date,
       require: true,
     },
@@ -24,7 +24,7 @@ const BookingSchema = new Schema(
       required: true,
       ref: "Bus",
     },
-    userId: {
+    user: {
       type: Schema.ObjectId,
       ref: "User",
       required: true,

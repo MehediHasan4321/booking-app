@@ -12,15 +12,21 @@ const createSeat = async ({ ownerId, busId, numberOfSeat = 1 }) => {
   await seat.save();
 };
 
-const updateSeat = async ({ busId, seatQuantity }) => {
+const findSeatsByBusId = async(busId)=>{
+  return await Seats.findOne({ busId: busId });
+}
+
+const updateSeatQuantity = async ({ busId, seatQuantity }) => {
   const busSeats = generateSeat(seatQuantity);
 
-  const seat = await Seats.findOne({ busId: busId });
+  const seat = await findSeatsByBusId(busId)
 
   await seat.updateOne({ seat: busSeats });
 
   await seat.save();
 };
+
+
 
 const deleteSeat = async (busId) => {
   const seat = await Seats.findOne({ busId: busId });
@@ -30,6 +36,8 @@ const deleteSeat = async (busId) => {
 
 module.exports = {
   createSeat,
-  updateSeat,
+  updateSeat:updateSeatQuantity,
   deleteSeat,
+  findSeatsByBusId,
+  
 };

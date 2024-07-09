@@ -133,14 +133,22 @@ const updatePropertie = async (
   return bus._doc;
 };
 
-const removeItem =async (id)=>{
-  const bus =await Bus.findById(id)
-  if(!bus) throw notFound()
+const removeItem = async (id) => {
+  const bus = await Bus.findById(id);
+  if (!bus) throw notFound();
 
-    await bus.deleteOne()
-    await deleteSeat(id)
-    
-}
+  await bus.deleteOne();
+  await deleteSeat(id);
+};
+
+const isValidLocation = async (busId, { from, to }) => {
+  const bus = await Bus.findById(busId);
+
+  const stopes = bus.stopes.map(item=>item.location)
+ 
+  
+  return (stopes.includes(from) && stopes.includes(to)?true:false)
+};
 
 module.exports = {
   create,
@@ -149,4 +157,5 @@ module.exports = {
   updateOrCreate,
   updatePropertie,
   removeItem,
+  isValidLocation,
 };

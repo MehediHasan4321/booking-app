@@ -715,7 +715,6 @@ paths:
         - $ref: "#/components/parameters/sortBy"
         - $ref: "#/components/parameters/sortKey"
         - $ref: "#/components/parameters/status"
-        - $ref: "#/components/parameters/role"
         - $ref: "#/components/parameters/search"
       responses:
         "200":
@@ -762,7 +761,7 @@ paths:
             schema:
               type: object
               properties:
-                journeyDate:
+                date:
                   type: string
                   format: date-time
                 to:
@@ -777,19 +776,7 @@ paths:
                 busId:
                   type: string
                   example: 1
-                status:
-                  type: string
-                  enum: ["pending", "approved", "completed"]
-                  default: pending
-                userId:
-                  type: string
-                  example: 1
-                createdAt:
-                  type: string
-                  format: date-time
-                updatedAt:
-                  type: string
-                  format: date-time
+
       responses:
         "201":
           description: Successfully booked a seat
