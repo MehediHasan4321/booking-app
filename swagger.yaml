@@ -1154,7 +1154,7 @@ components:
     "bookingBody":
       type: object
       properties:
-        journeyDate:
+        date:
           type: string
           format: date-time
         to:
@@ -1166,11 +1166,14 @@ components:
         seat:
           type: string
           example: A1
+        busId:  
+          type: string
+          example: 1
         status:
           type: string
           enum: ["pending", "approved", "completed"]
           default: pending
-
+      required: [date,to,from,seat,busId]
   responses:
     "400":
       description: Bad request

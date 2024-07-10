@@ -79,7 +79,11 @@ router
     roleBasePermission(["admin", "user", "owner"]),
     bookingController.findSingle
   )
-  .put()
+  .put(
+    authenticate,
+    roleBasePermission(['user','admin','owner']),
+    bookingController.updateOrCreate
+  )
   .patch()
   .delete();
 

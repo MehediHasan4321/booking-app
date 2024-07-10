@@ -1,5 +1,5 @@
 const { Bus } = require("../../model");
-const { createSeat, updateSeat, deleteSeat } = require("./seat");
+const { createSeat, updateSeatQuantity, deleteSeat } = require('../seat');
 const seatService = require("../seat");
 const { badRequest, notFound } = require("../../utils/error");
 
@@ -106,7 +106,7 @@ const updateOrCreate = async (
   bus.overwrite(payload);
 
   await bus.save();
-  await updateSeat({ busId: id, seatQuantity: bus.totalSeat });
+  await updateSeatQuantity({ busId: id, seatQuantity: bus.totalSeat });
   return { bus: bus._doc, status: 200 };
 };
 
