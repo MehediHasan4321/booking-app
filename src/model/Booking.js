@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose");
 const BookingSchema = new Schema(
   {
     date: {
-      type: Date,
+      type: String,
       require: true,
     },
     seat: {

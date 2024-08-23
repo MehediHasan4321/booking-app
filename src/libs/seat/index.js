@@ -1,5 +1,5 @@
 const { Seats } = require("../../model");
-const { badRequest, notFound } = require("../../utils/error");
+const { badRequest } = require("../../utils/error");
 const { generateSeat } = require("./utils");
 
 const createSeat = async ({ ownerId, busId, numberOfSeat = 1 }) => {
@@ -13,9 +13,24 @@ const createSeat = async ({ ownerId, busId, numberOfSeat = 1 }) => {
   await seat.save();
 };
 
+/**
+ * findSeatsByBusId
+ * @param {string} busId
+ * @returns {Array} Seates
+*/
+
 const findSeatsByBusId = async (busId) => {
   return await Seats.findOne({ busId: busId });
 };
+
+
+
+/**
+ * Update Seat Quantity base on busId and seatQuantity
+ * @param {string} busId
+ * @param {number} seatQuantity
+ * @returns {Promise} 
+*/
 
 const updateSeatQuantity = async ({ busId, seatQuantity }) => {
   const busSeats = generateSeat(seatQuantity);
@@ -27,15 +42,38 @@ const updateSeatQuantity = async ({ busId, seatQuantity }) => {
   await seat.save();
 };
 
+
+
+/**
+ * Delete Seat by passing busId
+ * @param {string} busId
+ * @returns {Promise}
+*/
+
 const deleteSeat = async (busId) => {
   const seat = await Seats.findOne({ busId: busId });
 
   await seat.deleteOne();
 };
 
+
+/**
+ * find Seats by passing busId
+ * @param {string} busId
+ * @returns {Promise}
+*/
 const find = async (busId) => {
   return await Seats.findOne({ busId: busId });
 };
+
+
+/**
+ * Update Seat Properties by busId and seat date like seat name and date;
+ * @param {string} busId
+ * @param {string} seat
+ * @param {string} date
+ * @returns {Promise}
+*/
 
 const updateSeatPropertie = async (busId, { seat, date }) => {
   const seats = await findSeatsByBusId(busId);
@@ -57,14 +95,20 @@ const updateSeatPropertie = async (busId, { seat, date }) => {
   await seats.save();
 };
 
+
+
 const removeDateFromSeat = async ({ busId, seatName, date }) => {
-  console.log(busId,seatName,date);
+  
   const seats = await findSeatsByBusId(busId);
   seats.seat.forEach((item) => {
     if (item.name === seatName) {
+
+    
+
       if (!item.booking.includes(date)){
         throw badRequest(`You did't booked the seat`);
       }
+
         
       item.booking = item.booking.filter((d) => d !== date);
       item.booking.length === 0 ? (item.isBooked = false) : item.isBooked;
@@ -72,6 +116,9 @@ const removeDateFromSeat = async ({ busId, seatName, date }) => {
       return item;
     }
   });
+
+
+
 
   await seats
     .updateOne({ seat: seats.seat })

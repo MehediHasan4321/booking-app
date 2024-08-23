@@ -84,7 +84,15 @@ router
     roleBasePermission(['user','admin','owner']),
     bookingController.updateOrCreate
   )
-  .patch()
-  .delete();
+  .patch(
+    authenticate,
+    roleBasePermission(['user','admin','owner']),
+    bookingController.updatePropertie
+  )
+  .delete(
+    authenticate,
+    roleBasePermission(['user','admin','owner']),
+    bookingController.remove
+  );
 
 module.exports = router;

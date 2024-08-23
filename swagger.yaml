@@ -20,6 +20,8 @@ tags:
     description: This is only for Bus related api endpoing (privet)
   - name: Booking
     description: This is only for booknig related api endpoint (privet)
+  - name: Review
+    description: This is only for reviewing a bus related api endpoint (privet)
 
 paths:
   "/auth/register":
@@ -461,10 +463,10 @@ paths:
                   type: integer
                   format: int32
                   example: 28
-                stopes:
+                stopes: 
                   type: array
-                  items:
-                    $ref: "#/components/schemas/stopes"
+                  
+                  
       responses:
         "201":
           description: bus created successfully
@@ -981,7 +983,46 @@ paths:
                   message:
                     type: string
                     example: You have delete a booking successfully
-
+  "/reviews":
+    
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Review
+      description: get all reviews
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                review:
+                  type: string
+                  example: Your valuable review
+                rating: 
+                  type: number
+                  example: 4.5
+                busID:
+                  type: string
+                  example: bus123
+                userID:
+                  type: string
+                  example: user123
+                bookingID:  
+                  type: string
+                  example: booking123
+              required: [review,rating,busID,userID,bookingID]
+      responses:
+        '201':
+          description: this endpoing will ensure the review is success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/review'
+                    
+                  
+                
 # All components are here
 
 components:
@@ -990,7 +1031,6 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
   schemas:
     "timeStamp":
       type: object
@@ -1012,6 +1052,16 @@ components:
             name:
               type: string
               example: Orin
+            image: 
+              type: string
+              example: https://aws.s3.com/bus-booking/orie.jpg
+            seatImage:
+              type: array
+              items:
+                type: string
+                example: https://aws.s3.com/bus-booking/seat1.jpg 
+                
+                  
             isAc:
               type: boolean
               example: false
@@ -1021,8 +1071,8 @@ components:
               example: 4.5
             stopes:
               type: array
-              items:
-                $ref: "#/components/schemas/stopes"
+              
+                
             totalSeat:
               type: integer
               format: int32
@@ -1030,7 +1080,7 @@ components:
             seatClass:
               type: string
               example: economic
-          required: [_id, name, isAc, stopes, totalSeat, seatClass]
+          required: [_id, name, isAc, stopes, totalSeat, seatClass,image]
         - $ref: "#/components/schemas/timeStamp"
     "stopes":
       type: object
@@ -1080,7 +1130,33 @@ components:
 
           required: [_id, busId, seat]
         - $ref: "#/components/schemas/timeStamp"
-
+    "review":
+      type: object
+      allOf:
+        - properties:
+            _id: 
+              type: string
+              example: 123
+            review:
+              type: string
+              example: Your Review will here
+            rating:
+              type: number
+              example: 4.5
+            busID:
+              type: string
+              example: bus12
+            bookingID:
+              type: string
+              example: booking123
+            userID:
+              type: string
+              example: user1
+            status:
+              type: string
+              enum: ['published','blocked']
+              example: published
+        - $ref: '#/components/schemas/timeStamp'  
     "user":
       allOf:
         - type: object
@@ -1302,7 +1378,7 @@ components:
       required: false
       schema:
         type: string
-        format: date-time
+        format: date
         example: 2024-07-04T17:07:02.874Z
 
     sortBy:

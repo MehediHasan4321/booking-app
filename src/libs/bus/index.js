@@ -1,5 +1,5 @@
 const { Bus } = require("../../model");
-const { createSeat, updateSeatQuantity, deleteSeat } = require('../seat');
+const { createSeat, updateSeatQuantity, deleteSeat } = require("../seat");
 const seatService = require("../seat");
 const { badRequest, notFound } = require("../../utils/error");
 
@@ -144,10 +144,9 @@ const removeItem = async (id) => {
 const isValidLocation = async (busId, { from, to }) => {
   const bus = await Bus.findById(busId);
 
-  const stopes = bus.stopes.map(item=>item.location)
- 
-  
-  return (stopes.includes(from) && stopes.includes(to)?true:false)
+  const stopes = bus.stopes.map((item) => item.location);
+
+  return stopes.includes(from) && stopes.includes(to) ? true : false;
 };
 
 module.exports = {

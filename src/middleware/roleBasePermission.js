@@ -1,6 +1,6 @@
 const {authorizationError} = require('../utils/error')
 
-const roleBasePermission = (role=['admin'])=>(req,res,next)=>{
+const roleBasePermission = (role=['admin'])=>(req,_res,next)=>{
     const user = req.user
     
     if(role.includes(user.role)){
