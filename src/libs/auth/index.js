@@ -1,58 +1,82 @@
-const {generateHashing,compareHash} = require('../../utils/hashing')
-const {userExist,createUser, findUserByEmail} = require('../user')
-const {badRequest} = require('../../utils/error')
-const { generateToken } = require('../token')
+const { generateHashing, compareHash } = require("../../utils/hashing");
+const { userExist, createUser, findUserByEmail } = require("../user");
+const { badRequest } = require("../../utils/error");
+const { generateToken } = require("../token");
 
+const register = async ({ name, email, password }) => {
+  const hasUser = await userExist(email);
 
+  if (hasUser) {
+    throw badRequest("User already Exist");
+  }
 
-const register = async ({name,email,password})=>{
-    const hasUser = await userExist(email)
+  password = await generateHashing(password);
 
-    if(hasUser){
-        throw badRequest('User already Exist')
-    }
+  const user = await createUser({ name, email, password });
+  return user;
+};
 
-    password = await generateHashing(password)
+const login = async ({ email, password }) => {
+  const user = await findUserByEmail(email);
 
-    
+  if (!user) {
+    throw badRequest("Invalid Credientials");
+  }
 
-    const user = await createUser({name,email,password})
-    return user
+  const isMatch = await compareHash(password, user.password);
 
-}
+  if (!isMatch) {
+    throw badRequest("Invalid Credientials");
+  }
 
+  const payload = {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+  };
 
-const login =async ({email,password})=>{
-    
+  return generateToken({ payload });
+};
 
-    const user = await findUserByEmail(email)
+const changePassword = async (email, currentPassword, newPassword) => {
+  const user = await findUserByEmail(email);
+  if (!user) {
+    throw badRequest("Invalid Credientials");
+  }
+  const isMatchPass = await compareHash(currentPassword, user.password);
+  if (!isMatchPass) {
+    throw badRequest("Invalid Credientials");
+  }
 
-    if(!user){
-        throw badRequest('Invalid Credientials')
-    }
+  newPassword = generateHashing(newPassword);
 
-    const isMatch = await compareHash(password,user.password)
+  user.overwrite({ password: newPassword });
 
-    if(!isMatch){
-        throw badRequest('Invalid Credientials')
-    }
+  await user.save();
 
-    const payload = {
-        _id:user._id,
-        name:user.name,
-        email:user.email,
-        role:user.role,
-        status:user.status
-    }
+  return {message:'Your password has been changed'}
+};
 
+/**
+ * forgetPassword function will give a chance to user to reset his/her password
+ * if he/her pass a valid email
+ * @param {string} email
+ */
 
-    return generateToken({payload})
+const forgetPassword = async (email) => {
+  const user = await findUserByEmail(email);
+  if (user) {
+    //TODO: Sent an Email to user to reset password
+  }
 
+  throw badRequest("Invalid Email you pass!");
+};
 
-}
-
-
-module.exports= {
-    register,
-    login,
-}
+module.exports = {
+  register,
+  login,
+  forgetPassword,
+  changePassword,
+};

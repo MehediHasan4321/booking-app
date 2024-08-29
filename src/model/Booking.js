@@ -20,12 +20,12 @@ const BookingSchema = new Schema(
       required: true,
     },
     busId: {
-      type: Schema.ObjectId,
+      type: String,
       required: true,
       ref: "Bus",
     },
-    user: {
-      type: Schema.ObjectId,
+    userId: {
+      type: String,
       ref: "User",
       required: true,
     },

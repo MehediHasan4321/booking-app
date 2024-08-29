@@ -7,6 +7,16 @@ const {
   findById,
 } = require("./utils");
 
+
+/**
+ * CreateUser function create an user based on valid credientials.
+ * @param {String} name 
+ * @param {string} email
+ * @param {string} password
+ * @param {string} role
+ * @param {string} status
+ * @returns {User}
+ */
 const createUser = async ({
   name,
   email,
@@ -16,6 +26,10 @@ const createUser = async ({
 }) => {
   if (!name || !email || !password) {
     throw badRequest("Invalid Credentials");
+  }
+
+  if(!email.includes('@')){
+    throw badRequest('Invalid Email')
   }
 
   const user = new User({ name, email, password, role, status });
@@ -60,7 +74,11 @@ const updateOrCreate = async (
   { name, phone = "", avater = "", role = "user", status = "pending" }
 ) => {
   const user = await findById(id);
-  if (!user) throw notFound();
+  if (!user) {
+    //TODO: Create an user if user dose not exist!
+
+    throw notFound();
+  }
 
   if (!name) throw badRequest("Name is required to update user");
 

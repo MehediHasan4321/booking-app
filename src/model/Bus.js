@@ -6,8 +6,21 @@ const BusSchema = new Schema(
       type: String,
       required: true,
     },
-    ownerId: {
-      type: Schema.ObjectId,
+    busNumber:{
+      type:String,
+      required: true
+    },
+    image:{
+      type: String,
+      required: true
+      
+    },
+    seatImage:{
+      type:[{}],
+      required:false
+    },
+    ownerID: {
+      type: String,
       ref: "User",
       required: true,
     },
@@ -25,7 +38,11 @@ const BusSchema = new Schema(
       enum: ["ecnomic", "business", "first class"],
       default: "ecnomic",
     },
-    totalSeat: {
+    seatPatten:{
+      type:String,
+      required: false
+    },
+    seatQtn: {
       type: Number,
       required: true,
     },
@@ -33,28 +50,12 @@ const BusSchema = new Schema(
       type: Number,
       default: 0,
     },
-    stopes: {
-      type: [
-        {
-          location: {
-            type: String,
-            required: true,
-          },
-          date: {
-            type: Date,
-            required: true,
-          },
-          isStartingPoint: {
-            type: Boolean,
-            default: false,
-          },
-          isEndPoint: {
-            type: Boolean,
-            default: false,
-          },
-        },
-      ],
-    },
+    active:{
+      type:Boolean,
+      required:true,
+      default:false
+    }
+   
   },
   { timestamps: true }
 );

@@ -49,6 +49,9 @@ const create = async ({ date, to, from, seat, busId, userId }) => {
       "This bus is not going to your location, Plz Select Another"
     );
 
+    //TODO: Check first the bus seat is available or not base on date
+
+
   await updateSeatPropertie(busId, { seat, date });
 
   const booking = new Booking({
@@ -165,7 +168,8 @@ const removeBooking = async (id) => {
   if (!booking) {
     throw notFound();
   }
-
+  
+  
   await removeDateFromSeat({
     busId: booking.busId,
     seatName: booking.seat,

@@ -3,6 +3,7 @@ const { controller: busController } = require("../api/v1/bus");
 const { controller: authController } = require("../api/v1/auth");
 const { controller: userController } = require("../api/v1/user");
 const { controller: bookingController } = require("../api/v1/booking");
+const { controller: reviewController } = require("../api/v1/review");
 const authenticate = require("../middleware/authenticate");
 const roleBasePermission = require("../middleware/roleBasePermission");
 
@@ -81,18 +82,30 @@ router
   )
   .put(
     authenticate,
-    roleBasePermission(['user','admin','owner']),
+    roleBasePermission(["user", "admin", "owner"]),
     bookingController.updateOrCreate
   )
   .patch(
     authenticate,
-    roleBasePermission(['user','admin','owner']),
+    roleBasePermission(["user", "admin", "owner"]),
     bookingController.updatePropertie
   )
   .delete(
     authenticate,
-    roleBasePermission(['user','admin','owner']),
+    roleBasePermission(["user", "admin", "owner"]),
     bookingController.remove
   );
+
+// Review releated all route
+
+router
+  .route("/api/v1/reviews")
+  .get(authenticate, reviewController.findAll)
+  .post(authenticate, reviewController.create);
+
+router
+  .route("/api/v1/reviews/:id")
+  .get(authenticate, reviewController.findSingle)
+  .delete(authenticate,reviewController.remove)
 
 module.exports = router;

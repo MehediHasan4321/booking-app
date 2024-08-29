@@ -15,24 +15,20 @@ const generateToken = ({
   }
 };
 
-
-
 const verifyToken = ({
   token,
   algorithm = "HS256",
   secrect = process.env.ACCESS_TOKEN_SECRECT,
 }) => {
-    try {
-        return jwt.verify(token,secrect,{algorithms:[algorithm]})
-    } catch (e) {
-        console.log("[JWT]", e.message);
+  try {
+    return jwt.verify(token, secrect, { algorithms: [algorithm] });
+  } catch (e) {
+    console.log("[JWT]", e.message);
     throw serverError();
-    }
+  }
 };
 
-
-
 module.exports = {
-    generateToken,
-    verifyToken
-}
+  generateToken,
+  verifyToken,
+};
