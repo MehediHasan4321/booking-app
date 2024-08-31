@@ -1513,13 +1513,7 @@ paths:
         - bearerAuth: []
       description: Update a stopes or create a new one
       parameters:
-        - in: path
-          name: busID
-          description: Provide busId whice bus you want to update.
-          required: true
-          schema:
-            type: string
-            example: 1234
+        - $ref: '#/components/parameters/idPathParam'
       requestBody:
         content:
           application/json:
@@ -1533,9 +1527,9 @@ paths:
                 sheft:
                   type: string
                   enum:
-                    - day
-                    - night
-                  default: day
+                    - Day
+                    - Night
+                  default: Day
                 stopes:
                   type: array
                   items:

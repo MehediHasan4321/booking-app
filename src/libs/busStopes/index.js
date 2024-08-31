@@ -63,8 +63,48 @@ const findSingle = async (busID)=>{
 }
 
 
+const updateOrCreate = async (id,{busID,date,sheft,stopes=[]})=>{
+  if(!id){
+    throw badRequest('busStopes is required to update')
+  }
+
+  const busStopes = await BusStopes.findById(id)
+
+
+
+  if(!busStopes){
+    const newBusStopes = await create({busID,stopes,sheft,date})
+    return {busStopes:newBusStopes,code: 201}
+  }
+
+  if(stopes.length<2){
+    throw badRequest('Bus stopes need atlest two')
+  }
+
+  // TODO: Check the bus is exist or not based on busID.
+
+
+
+
+
+  const payloay = {
+    busID:busStopes.busID,
+    date,
+    sheft,
+    stopes
+  }
+
+  busStopes.overwrite(payloay)
+
+  await busStopes.save()
+
+  return {busStopes:busStopes._doc,code:200}
+
+}
+
 
 module.exports = {
   create,
-  findSingle
+  findSingle,
+  updateOrCreate,
 };
