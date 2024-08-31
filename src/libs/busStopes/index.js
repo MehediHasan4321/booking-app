@@ -3,6 +3,17 @@ const { badRequest, notFound } = require("../../utils/error");
 const { isExistBus } = require("../review/utils");
 const { busHasAlreadyStopes } = require("./utils");
 
+
+
+
+/**
+ * This function will create a busStopes for a bus
+ * @param {string} busID
+ * @param {Array} stopes
+ * @param { String} sheft
+ * @param { String} data 
+ * @returns {Object}
+ */
 const create = async ({ busID = "", stopes = [], sheft = "", date = "" }) => {
   // const hasBus = isExistBus(busID)
   if ((busID, !sheft)) {
@@ -33,6 +44,27 @@ const create = async ({ busID = "", stopes = [], sheft = "", date = "" }) => {
   return busStopes._doc;
 };
 
+
+/**
+ * This function will return a busStopes based on busID
+ * @param {String} busID
+ * @return {Object}
+ */
+
+const findSingle = async (busID)=>{
+  if(!busID){
+    throw badRequest('busID must need to get busStopes')
+  }
+  const stopes = await BusStopes.find({busID})
+
+  
+
+  return stopes[0]._doc
+}
+
+
+
 module.exports = {
   create,
+  findSingle
 };

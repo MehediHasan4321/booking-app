@@ -114,9 +114,9 @@ router
 // All busStopes related route are here.
 
 router.route('/api/v1/busStopes')
-.get(authenticate,busStopesController.findSingle)
 .post(authenticate,busStopesController.create)
 router.route('/api/v1/busStopes/:id')
+.get(authenticate,busStopesController.findSingle)
 .patch(authenticate,busStopesController.updateByPatch)
 .put(authenticate,busStopesController.updateOrCreate)
 .delete(authenticate,busStopesController.remove)

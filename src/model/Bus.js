@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 
+
 const BusSchema = new Schema(
   {
     name: {
@@ -24,6 +25,11 @@ const BusSchema = new Schema(
       ref: "User",
       required: true,
     },
+    stopesID:{
+      type: String,
+      ref: "BusStopes"
+    },
+
     isAc: {
       type: Boolean,
       default: false,

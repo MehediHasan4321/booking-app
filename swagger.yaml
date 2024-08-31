@@ -1380,7 +1380,7 @@ paths:
                 busID:
                   type: string
                   example: bus123
-                data:
+                date:
                   type: string
                   format: date
                   example: 2024-07-04
@@ -1401,6 +1401,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  code:
+                    type: string
+                    example: 201
                   message: 
                     type: string
                     example: Successful
@@ -1460,6 +1463,49 @@ paths:
                         type: string
                         example: /buses/123
   '/busStopes/{id}':
+    get:
+      tags:
+       - Stopes
+      description: get a stopse based on busID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/idPathParam'
+      responses:
+        '200':
+          description: success responses
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: 200
+                  message:
+                    type: string
+                    example: Success
+                  data: 
+                    $ref: '#/components/schemas/busStopes'
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        example: /busStopes/123
+                      bus:
+                        type: string
+                        example: /buses/1/seats
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+
+
     put:
       tags:
         - Stopes
