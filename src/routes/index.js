@@ -4,6 +4,7 @@ const { controller: authController } = require("../api/v1/auth");
 const { controller: userController } = require("../api/v1/user");
 const { controller: bookingController } = require("../api/v1/booking");
 const { controller: reviewController } = require("../api/v1/review");
+const { controller: busStopesController} = require('../api/v1/busStopes')
 const authenticate = require("../middleware/authenticate");
 const roleBasePermission = require("../middleware/roleBasePermission");
 
@@ -107,5 +108,17 @@ router
   .route("/api/v1/reviews/:id")
   .get(authenticate, reviewController.findSingle)
   .delete(authenticate,reviewController.remove)
+
+
+
+// All busStopes related route are here.
+
+router.route('/api/v1/busStopes')
+.get(authenticate,busStopesController.findSingle)
+.post(authenticate,busStopesController.create)
+router.route('/api/v1/busStopes/:id')
+.patch(authenticate,busStopesController.updateByPatch)
+.put(authenticate,busStopesController.updateOrCreate)
+.delete(authenticate,busStopesController.remove)
 
 module.exports = router;

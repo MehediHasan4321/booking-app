@@ -1386,8 +1386,8 @@ paths:
                   example: 2024-07-04
                 sheft:
                   type: string
-                  enum: [day,night]
-                  default: day
+                  enum: [Day,Night]
+                  default: Day
                 stopes:
                   type: array
                   items:
