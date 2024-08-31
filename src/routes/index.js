@@ -116,7 +116,7 @@ router
 router.route('/api/v1/busStopes')
 .post(authenticate,busStopesController.create)
 router.route('/api/v1/busStopes/:id')
-.get(authenticate,busStopesController.findSingle)
+.get(busStopesController.findSingle)
 .patch(authenticate,busStopesController.updateByPatch)
 .put(authenticate,busStopesController.updateOrCreate)
 .delete(authenticate,busStopesController.remove)

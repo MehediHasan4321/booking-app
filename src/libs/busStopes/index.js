@@ -59,7 +59,7 @@ const findSingle = async (busID)=>{
 
   
 
-  return stopes[0]._doc
+  return stopes[0]?._doc
 }
 
 
@@ -103,8 +103,24 @@ const updateOrCreate = async (id,{busID,date,sheft,stopes=[]})=>{
 }
 
 
+/**
+ * This function will delete a busStopes base on stopesID.
+ * @param {string} id 
+ */
+
+const remove = async (id)=>{
+  if(!id){
+    throw badRequest('busID is required to delete!')
+  }
+
+   await BusStopes.findByIdAndDelete(id)
+
+
+}
+
 module.exports = {
   create,
   findSingle,
   updateOrCreate,
+  remove,
 };

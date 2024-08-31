@@ -1426,51 +1426,20 @@ paths:
           $ref: '#/components/responses/404'
         '500':
           $ref: '#/components/responses/500'
-    get:
-      description: Get bus stopes base on busID 
-      tags:
-        - Stopes
-      security:
-        - bearerAuth: []
-      parameters: 
-        - in: path
-          name: busID
-          required: true
-          description: Provide a Bus ID
-          schema:
-            type: string
-            example: 123
-      responses:
-        '200':
-          description: success responses
-          content:
-            application/json:
-              schema: 
-                type: object
-                properties:
-                  message: 
-                    type: string
-                    example: success
-                  data:
-                    $ref: '#/components/schemas/busStopes'
-                  links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        example: /busStopes/123
-                      bus:
-                        type: string
-                        example: /buses/123
+
+
   '/busStopes/{id}':
     get:
       tags:
        - Stopes
       description: get a stopse based on busID
-      security:
-        - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/idPathParam'
+        - in: path
+          required: true
+          name: id
+          schema: 
+            type: string
+            example: bus123
       responses:
         '200':
           description: success responses
@@ -1564,62 +1533,7 @@ paths:
           $ref: '#/components/responses/404'
         '500':
           $ref: '#/components/responses/500'    
-    patch:
-      description: update a bus stopes property using patch.
-      tags:
-        - Stopes
-      security:
-        - bearerAuth: []
-      
-      parameters:
-        - in: path
-          name: stopesID
-          required: true
-          schema:
-            type: string
-            example: 1234
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                date:
-                  type: string
-                  format: date
-                  example: 2024-07-04
-                sheft:
-                  type: string
-                  enum: ['day','night']
-                  default: day
-                stopes:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/stopes'
-      responses:
-        '200':
-          description: success responses
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Successfully updated
-                  data:
-                    $ref: '#/components/schemas/busStopes'
-                  links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        example: '/busStopes/123'
-                      bus:
-                        type: string
-                        example: /buses/123
-                  
-      
+            
     delete:
       description: delete a bus stopes
       tags:
@@ -1628,7 +1542,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: stopesID
+          name: id
           description: Provide stopes Id to delete a bus stopes.
           required: true
           schema: 
