@@ -1679,9 +1679,9 @@ components:
         location:
           type: string
           example: Gaibandha
-        date:
+        time:
           type: string
-          format: date
+          example: T05:30:08:000Z
         start:
           type: boolean
           example: true
