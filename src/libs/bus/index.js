@@ -3,53 +3,78 @@ const { createSeat, updateSeatQuantity, deleteSeat } = require("../seat");
 const seatService = require("../seat");
 const { badRequest, notFound } = require("../../utils/error");
 
+/**
+ * This function will create a new bus.
+ * @param {string} name
+ * @param {string} busNumber
+ * @param {string} image
+ * @returns {object}
+ */
+
 const create = async ({
-  name = "bus name",
+  name = "",
+  busNumber = "",
+  image = "",
+  seatImage = [],
   isAc = false,
-  seatPrice = 1,
+  price = 1,
   seatClass = "ecnomic",
-  totalSeat = 1,
-  stopes = [],
-  rating = 0,
-  ownerId,
+  seatQtn = 1,
+  ownerID,
+  seatPatten = "2:2",
 }) => {
-  if (!ownerId) {
+  if (!ownerID) {
     throw badRequest("Each Bus need to an owner");
   }
-  if (stopes.length < 2) throw badRequest("Bus stopes must be more then two");
+
+  if (!name || !busNumber || !price || !seatQtn) {
+    throw badRequest("Some required fields are missing!");
+  }
+
+  // TODO: Check the seat patten and seatQtn are valid quantity
+
   const bus = new Bus({
     name,
+    busNumber,
+    image,
+    price,
+    seatImage,
     isAc,
-    totalSeat,
     seatClass,
-    price: seatPrice,
-    ownerId,
-    rating,
-    stopes,
+    seatQtn,
+    ownerID,
+    seatPatten,
   });
 
   await bus.save();
-  await createSeat({ ownerId, busId: bus._id, numberOfSeat: bus.totalSeat });
+
+  // await createSeat({ ownerId, busId: bus._id, numberOfSeat: bus.totalSeat });
 
   return bus._doc;
 };
 
+/**
+ * This function will return an Array of objecte based on user location and date.
+ * @param {string} location
+ * @param {string} date
+ * @return {Array}
+ */
+
 const findAll = async ({ location = "", date }) => {
   const lowerCase = location.toLocaleLowerCase();
 
-  const bus = await Bus.find();
-  if (location) {
-    const data = bus.filter((entry) =>
-      entry.stopes.some((stope) =>
-        stope.location.toLocaleLowerCase().startsWith(lowerCase)
-      )
-    );
+  //TODO: Write code for filter based on location and date query
 
-    return data;
-  }
+  const bus = await Bus.find();
 
   return bus;
 };
+
+/**
+ * This function will return a single bus based on busID.
+ * @param {string} id
+ * @returns {Object}
+ */
 
 const findSingle = async (id) => {
   if (!id) throw badRequest();
@@ -57,25 +82,30 @@ const findSingle = async (id) => {
   const bus = await Bus.findById(id);
 
   if (!bus) throw notFound();
-  const seat = await seatService.find(bus._id);
-  const result = {
-    ...bus._doc,
-    seat: seat.seat,
-  };
 
-  return result;
+  return bus._doc;
 };
+
+/**
+ * This function will update a hole object if exist. if not exist then it create a new one.
+ * @param {String} id
+ * @param {*} param1
+ * @returns {object}
+ */
 
 const updateOrCreate = async (
   id,
   {
-    name,
+    name = "",
+    busNumber = "",
+    image = "",
+    seatImage = [],
     isAc = false,
-    stopes = [],
-    totalSeat,
-    ownerId,
-    price,
+    price = 1,
     seatClass = "ecnomic",
+    seatQtn = 1,
+    ownerID,
+    seatPatten = "2:2",
   }
 ) => {
   const bus = await Bus.findById(id);
@@ -83,36 +113,54 @@ const updateOrCreate = async (
   if (!bus) {
     const newBus = await create({
       name,
+      busNumber,
+      image,
+      seatImage,
       isAc,
-      seatPrice,
+      price,
       seatClass,
-      totalSeat,
-      ownerId,
-      stopes,
+      seatQtn,
+      ownerID,
+      seatPatten,
     });
     return { bus: newBus._doc, status: 201 };
   }
 
   const payload = {
     name,
+    busNumber,
+    image,
+    seatImage,
     isAc,
-    stopes,
-    totalSeat,
     price,
     seatClass,
-    ownerId,
+    seatQtn,
+    ownerID,
+    seatPatten,
+    active:bus.active
   };
 
   bus.overwrite(payload);
 
   await bus.save();
-  await updateSeatQuantity({ busId: id, seatQuantity: bus.totalSeat });
+  // TODO: Update seat quantit letter.
+  //await updateSeatQuantity({ busId: id, seatQuantity: bus.totalSeat });
   return { bus: bus._doc, status: 200 };
 };
 
 const updatePropertie = async (
   id,
-  { name, isAc, stopes, totalSeat, price, seatClass }
+  {
+    name,
+    busNumber,
+    image,
+    seatImage,
+    isAc,
+    price,
+    seatClass,
+    seatQtn,
+    seatPatten,
+  }
 ) => {
   const bus = await Bus.findById(id);
 
@@ -120,14 +168,18 @@ const updatePropertie = async (
 
   bus.name = name ?? bus.name;
   bus.isAc = isAc ?? bus.isAc;
-  bus.stopes = stopes ?? bus.stopes;
-  bus.totalSeat = totalSeat ?? bus.totalSeat;
+  bus.seatQtn = seatQtn ?? bus.seatQtn;
   bus.price = price ?? bus.price;
   bus.seatClass = seatClass ?? bus.seatClass;
+  bus.image = image?? bus.image;
+  bus.seatImage = seatImage?? bus.seatImage;
+  bus.busNumber = busNumber?? bus.busNumber;
+  bus.seatPatten = seatPatten??bus.seatPatten
 
   await bus.save();
-  if (totalSeat) {
-    await updateSeat({ busId: id, seatQuantity: bus.totalSeat });
+  if (seatQtn) {
+    // TODO: update seat quantity
+   // await updateSeat({ busId: id, seatQuantity: bus.totalSeat });
   }
 
   return bus._doc;
@@ -138,15 +190,15 @@ const removeItem = async (id) => {
   if (!bus) throw notFound();
 
   await bus.deleteOne();
-  await deleteSeat(id);
+  //await deleteSeat(id);
 };
 
 const isValidLocation = async (busId, { from, to }) => {
   const bus = await Bus.findById(busId);
 
-  const stopes = bus.stopes.map((item) => item.location);
+  // const stopes = bus.stopes.map((item) => item.location);
 
-  return stopes.includes(from) && stopes.includes(to) ? true : false;
+  // return stopes.includes(from) && stopes.includes(to) ? true : false;
 };
 
 module.exports = {

@@ -1,18 +1,30 @@
 const busService = require("../../../../libs/bus");
 
 const updateByPatch = async (req, res, next) => {
-    
   const id = req.params.id;
-  const { name, isAc, seatPrice, seatClass, stopes, totalSeat } = req.body;
-    
+  const {
+    name,
+    busNumber,
+    image,
+    seatImage,
+    isAc,
+    price,
+    seatClass,
+    seatQtn,
+    seatPatten,
+  } = req.body;
+
   try {
     const updatedData = await busService.updatePropertie(id, {
       name,
+      busNumber,
+      image,
+      seatImage,
       isAc,
+      price,
       seatClass,
-      price: seatPrice,
-      stopes,
-      totalSeat,
+      seatQtn,
+      seatPatten,
     });
 
     const response = {

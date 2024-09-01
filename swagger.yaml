@@ -698,7 +698,7 @@ paths:
                   type: string
                   enum: [2:2,1:2]
                   default: 2:2
-              required: [name,busNumber,image,isAc,seatQtn,price]
+             
                 
       responses:
         "200":
@@ -1426,8 +1426,6 @@ paths:
           $ref: '#/components/responses/404'
         '500':
           $ref: '#/components/responses/500'
-
-
   '/busStopes/{id}':
     get:
       tags:

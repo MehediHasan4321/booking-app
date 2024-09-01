@@ -4,21 +4,29 @@ const updateOrCreate = async (req, res, next) => {
 
   const {
     name,
-    isAc = false,
-    stopes = [],
-    totalSeat,
-    seatPrice,
-    seatClass = "ecnomic",
+    busNumber,
+    image,
+    seatImage,
+    isAc,
+    price,
+    seatClass,
+    seatQtn,
+    ownerID,
+    seatPatten,
   } = req.body;
   try {
     const { bus, status } = await busService.updateOrCreate(id, {
       name,
+      busNumber,
+      image,
+      seatImage,
       isAc,
-      stopes,
-      totalSeat,
-      price: seatPrice,
+      price,
       seatClass,
-      ownerId: req.user._id,
+      seatQtn,
+      ownerID,
+      seatPatten,
+      ownerID: req.user._id,
     });
 
     const response = {

@@ -1,33 +1,42 @@
 const busServices = require("../../../../libs/bus");
 
-const { generateSeat } = require("../../../../libs/bus/utils");
+
 
 const create = async (req, res, next) => {
   const {
-    name = "bus name",
-    isAc = false,
-    seatPrice = 1,
-    seatClass = "ecnomic",
-    totalSeat = 1,
-    stopes = [],
+    name,
+    busNumber,
+    image,
+    seatImage,
+    isAc,
+    price,
+    seatClass,
+    seatQtn,
+    seatPatten,
   } = req.body;
+
+
+
 
   try {
     const bus = await busServices.create({
       name,
-      isAc,
+      busNumber,
+      image,
+      seatImage,
       seatClass,
-      seatPrice,
-      totalSeat,
-      stopes,
-      ownerId: req.user._id,
+      seatPatten,
+      isAc,
+      seatQtn,
+      price,
+      ownerID: req.user._id,
     });
 
     const responses = {
       code: 201,
       message: "Bus created Successful",
       data: {
-        bus,
+        ...bus
       },
       links: {
         self: `/buses/${bus._id}`,

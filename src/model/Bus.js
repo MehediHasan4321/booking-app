@@ -27,7 +27,8 @@ const BusSchema = new Schema(
     },
     stopesID:{
       type: String,
-      ref: "BusStopes"
+      ref: "BusStopes",
+      default:''
     },
 
     isAc: {
@@ -46,7 +47,7 @@ const BusSchema = new Schema(
     },
     seatPatten:{
       type:String,
-      required: false
+      default: '2:2'
     },
     seatQtn: {
       type: Number,
