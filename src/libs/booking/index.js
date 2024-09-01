@@ -21,8 +21,7 @@ const findAll = async ({
   const sortStr = `${sortBy === "dsc" ? "-" : ""}${sortKey}`;
 
   const booking = await Booking.find()
-    .populate({ path: "user", select: "name" })
-    .sort(sortStr);
+   
 
   return booking;
 };
@@ -38,34 +37,43 @@ const findAll = async ({
  * @returns {Promise} booking
  */
 
-const create = async ({ date, to, from, seat, busId, userId }) => {
-  if (!date || !to || !from || !seat || !busId || !userId)
+const create = async ({ date, to, from, seat, busID, userID }) => {
+  if (!date || !to || !from || !seat || !busID || !userID)
     throw badRequest("Some required fields are missing!");
 
-  const isValid = await isValidLocation(busId, { from, to });
+  const isValid = await isValidLocation(busID, { from, to });
 
   if (!isValid)
     throw badRequest(
       "This bus is not going to your location, Plz Select Another"
     );
 
-    //TODO: Check first the bus seat is available or not base on date
+  //TODO: Check first the bus seat is available or not base on date
 
-
-  await updateSeatPropertie(busId, { seat, date });
+  await updateSeatPropertie(busID, { seat, date });
 
   const booking = new Booking({
-    busId,
+    busID,
     date,
     from,
+    to,
     seat,
     status: "pending",
-    to,
-    user: userId,
+    userID,
   });
-  await booking.save();
+  await booking.save()
+  .then(()=>{
+    // Sent an email to user to confirm to the booking.
+  })
+  .catch(async(e)=>{
+    //sent an email to user that the booking is not confirm.
+    await removeDateFromSeat({busID,seatName:seat,date})
+  })
   return booking;
 };
+
+
+
 
 /**
  * findSingle give us a single booking info base on booking id
@@ -130,7 +138,7 @@ const updateOrCreate = async (
 };
 
 
-
+// This function will update a single proprerty
 
 const updatePropertie = async (id, { date, to, from, seat, status, busId }) => {
   const booking = await Booking.findById(id);
@@ -159,6 +167,13 @@ const updatePropertie = async (id, { date, to, from, seat, status, busId }) => {
   return booking._doc;
 };
 
+
+/**
+ * This function will delete a booking based on bookingId
+ * @param {String} id 
+ */
+
+
 const removeBooking = async (id) => {
   if (!id) {
     throw badRequest("To perform the action Id must needed");
@@ -168,14 +183,14 @@ const removeBooking = async (id) => {
   if (!booking) {
     throw notFound();
   }
-  
-  
+
   await removeDateFromSeat({
-    busId: booking.busId,
+    busID: booking.busID,
     seatName: booking.seat,
     date: booking.date,
   })
     .then(async () => {
+      // TODO: Sent an Email to user to delete his booking.
       await booking.deleteOne();
     })
     .catch((e) => {

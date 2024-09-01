@@ -37,7 +37,7 @@ const create = async ({ busID = "", stopes = [], sheft = "", date = "" }) => {
     throw badRequest("Stopes needs atlest 2 stopes");
   }
 
-  const busStopes = await new BusStopes({ busID, date, sheft, stopes });
+  const busStopes = new BusStopes({ busID, date, sheft, stopes });
 
   await busStopes.save();
 

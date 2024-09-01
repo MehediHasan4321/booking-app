@@ -48,7 +48,7 @@ const create = async ({
 
   await bus.save();
 
-  // await createSeat({ ownerId, busId: bus._id, numberOfSeat: bus.totalSeat });
+  await createSeat({ownerID,busID:bus._id,numberOfSeat:bus.seatQtn});
 
   return bus._doc;
 };
@@ -137,14 +137,14 @@ const updateOrCreate = async (
     seatQtn,
     ownerID,
     seatPatten,
-    active:bus.active
+    active: bus.active,
   };
 
   bus.overwrite(payload);
 
   await bus.save();
-  // TODO: Update seat quantit letter.
-  //await updateSeatQuantity({ busId: id, seatQuantity: bus.totalSeat });
+  
+  await updateSeatQuantity({ busID: id, seatQuantity: bus.seatQtn });
   return { bus: bus._doc, status: 200 };
 };
 
@@ -171,15 +171,15 @@ const updatePropertie = async (
   bus.seatQtn = seatQtn ?? bus.seatQtn;
   bus.price = price ?? bus.price;
   bus.seatClass = seatClass ?? bus.seatClass;
-  bus.image = image?? bus.image;
-  bus.seatImage = seatImage?? bus.seatImage;
-  bus.busNumber = busNumber?? bus.busNumber;
-  bus.seatPatten = seatPatten??bus.seatPatten
+  bus.image = image ?? bus.image;
+  bus.seatImage = seatImage ?? bus.seatImage;
+  bus.busNumber = busNumber ?? bus.busNumber;
+  bus.seatPatten = seatPatten ?? bus.seatPatten;
 
   await bus.save();
   if (seatQtn) {
-    // TODO: update seat quantity
-   // await updateSeat({ busId: id, seatQuantity: bus.totalSeat });
+   
+    await updateSeat({ busID: id, seatQuantity: bus.seatQtn });
   }
 
   return bus._doc;
@@ -189,8 +189,8 @@ const removeItem = async (id) => {
   const bus = await Bus.findById(id);
   if (!bus) throw notFound();
 
-  await bus.deleteOne();
-  //await deleteSeat(id);
+  await bus.deleteOne()
+  await deleteSeat(id);
 };
 
 const isValidLocation = async (busId, { from, to }) => {

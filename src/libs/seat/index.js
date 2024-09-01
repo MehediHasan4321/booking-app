@@ -2,11 +2,19 @@ const { Seats } = require("../../model");
 const { badRequest } = require("../../utils/error");
 const { generateSeat } = require("./utils");
 
-const createSeat = async ({ ownerId, busId, numberOfSeat = 1 }) => {
+/**
+ * This function will crate a list of seat of a bus.
+ * @param {String} ownerID
+ * @param { String} busID
+ * @param { Number} numberOfSeat
+ *  
+ */
+
+const createSeat = async ({ ownerID, busID, numberOfSeat = 1 }) => {
   const busSeats = generateSeat(numberOfSeat);
   const seat = new Seats({
-    busId,
-    ownerId,
+    busID,
+    ownerID,
     seat: busSeats,
   });
 
@@ -16,7 +24,7 @@ const createSeat = async ({ ownerId, busId, numberOfSeat = 1 }) => {
 /**
  * findSeatsByBusId
  * @param {string} busId
- * @returns {Array} Seates
+ * @returns {Object} Seates
 */
 
 const findSeatsByBusId = async (busId) => {
@@ -44,6 +52,9 @@ const updateSeatQuantity = async ({ busId, seatQuantity }) => {
 
 
 
+
+
+
 /**
  * Delete Seat by passing busId
  * @param {string} busId
@@ -51,59 +62,49 @@ const updateSeatQuantity = async ({ busId, seatQuantity }) => {
 */
 
 const deleteSeat = async (busId) => {
-  const seat = await Seats.findOne({ busId: busId });
-
+  const seat = await Seats.findOne({ busID: busId });
+  
+  
   await seat.deleteOne();
 };
 
 
-/**
- * find Seats by passing busId
- * @param {string} busId
- * @returns {Promise}
-*/
-const find = async (busId) => {
-  return await Seats.findOne({ busId: busId });
-};
+
 
 
 /**
- * Update Seat Properties by busId and seat date like seat name and date;
- * @param {string} busId
+ * Update Seat Properties by busID and seat date like seat name and date;
+ * @param {string} busID
  * @param {string} seat
  * @param {string} date
  * @returns {Promise}
 */
 
-const updateSeatPropertie = async (busId, { seat, date }) => {
-  const seats = await findSeatsByBusId(busId);
-  seats.seat.forEach((item) => {
+const updateSeatPropertie = async (busID, { seat, date }) => {
+  const busSeat = await findSeatsByBusId(busID);
+  busSeat.seat.forEach((item) => {
     if (item.name === seat) {
       if (item.booking.includes(date)){
         throw badRequest("This seat already Booked");
       }
-        
 
-      item.isBooked = true;
       item.booking.push(date);
 
       return item;
     }
   });
 
-  await seats.updateOne({ seat: seats.seat });
-  await seats.save();
+  await busSeat.updateOne({ seat: busSeat.seat });
+  await busSeat.save();
 };
 
 
 
-const removeDateFromSeat = async ({ busId, seatName, date }) => {
+const removeDateFromSeat = async ({ busID, seatName, date }) => {
   
-  const seats = await findSeatsByBusId(busId);
-  seats.seat.forEach((item) => {
+  const busSeat = await findSeatsByBusId(busID);
+  busSeat.seat.forEach((item) => {
     if (item.name === seatName) {
-
-    
 
       if (!item.booking.includes(date)){
         throw badRequest(`You did't booked the seat`);
@@ -111,8 +112,8 @@ const removeDateFromSeat = async ({ busId, seatName, date }) => {
 
         
       item.booking = item.booking.filter((d) => d !== date);
-      item.booking.length === 0 ? (item.isBooked = false) : item.isBooked;
       
+
       return item;
     }
   });
@@ -120,10 +121,10 @@ const removeDateFromSeat = async ({ busId, seatName, date }) => {
 
 
 
-  await seats
-    .updateOne({ seat: seats.seat })
+  await busSeat
+    .updateOne({ seat: busSeat.seat })
     .then(async () => {
-      await seats.save();
+      await busSeat.save();
     })
     .catch((e) => {
       throw badRequest("[Booking Remove]", e.message);
@@ -131,7 +132,6 @@ const removeDateFromSeat = async ({ busId, seatName, date }) => {
 };
 
 module.exports = {
-  find,
   updateSeatPropertie,
   createSeat,
   updateSeatQuantity,

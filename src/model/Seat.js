@@ -1,12 +1,12 @@
 const {Schema,model} = require('mongoose')
 
 const SeatSchema = new Schema({
-    busId:{
+    busID:{
         type: Schema.ObjectId,
         ref:"Bus",
         require: true
     },
-    ownerId:{
+    ownerID:{
         type:Schema.ObjectId,
         ref:'User',
         required:true

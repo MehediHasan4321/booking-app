@@ -1,6 +1,6 @@
 class Seat {
   constructor(name) {
-    (this.name = name), (this.isBooked = false), (this.booking = []);
+    (this.name = name), (this.booking = []);
   }
 }
 
@@ -35,7 +35,7 @@ const generateSeat = (numberOfSeat = 1) => {
   ];
   const result = [];
   for (let i = 1; i <= numberOfSeat; i++) {
-    const name = `${i}${alpha[i - 1]}`;
+    const name = `${alpha[i - 1]}${i}`;
     result.push(new Seat(name));
   }
 

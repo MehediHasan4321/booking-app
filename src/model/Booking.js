@@ -19,19 +19,19 @@ const BookingSchema = new Schema(
       type: String,
       required: true,
     },
-    busId: {
+    busID: {
       type: String,
       required: true,
       ref: "Bus",
     },
-    userId: {
+    userID: {
       type: String,
       ref: "User",
       required: true,
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "completed"],
+      enum: ["pending", "approved", "completed","cancled"],
       default: "pending",
     },
   },
