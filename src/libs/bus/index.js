@@ -193,13 +193,7 @@ const removeItem = async (id) => {
   await deleteSeat(id);
 };
 
-const isValidLocation = async (busId, { from, to }) => {
-  const bus = await Bus.findById(busId);
 
-  // const stopes = bus.stopes.map((item) => item.location);
-
-  // return stopes.includes(from) && stopes.includes(to) ? true : false;
-};
 
 module.exports = {
   create,
@@ -208,5 +202,5 @@ module.exports = {
   updateOrCreate,
   updatePropertie,
   removeItem,
-  isValidLocation,
+  
 };

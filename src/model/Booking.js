@@ -6,10 +6,14 @@ const BookingSchema = new Schema(
       type: String,
       require: true,
     },
+    time:{
+      type: String,
+      require: true
+    },
     seat: {
       type: String,
       required: true,
-      ref: "Seat",
+      
     },
     to: {
       type: String,

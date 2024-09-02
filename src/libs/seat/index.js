@@ -23,27 +23,27 @@ const createSeat = async ({ ownerID, busID, numberOfSeat = 1 }) => {
 
 /**
  * findSeatsByBusId
- * @param {string} busId
+ * @param {string} busID
  * @returns {Object} Seates
 */
 
-const findSeatsByBusId = async (busId) => {
-  return await Seats.findOne({ busId: busId });
+const findSeatsByBusId = async (busID) => {
+  return await Seats.findOne({ busID });
 };
 
 
 
 /**
  * Update Seat Quantity base on busId and seatQuantity
- * @param {string} busId
+ * @param {string} busID
  * @param {number} seatQuantity
  * @returns {Promise} 
 */
 
-const updateSeatQuantity = async ({ busId, seatQuantity }) => {
+const updateSeatQuantity = async ({ busID, seatQuantity }) => {
   const busSeats = generateSeat(seatQuantity);
 
-  const seat = await findSeatsByBusId(busId);
+  const seat = await findSeatsByBusId(busID);
 
   await seat.updateOne({ seat: busSeats });
 

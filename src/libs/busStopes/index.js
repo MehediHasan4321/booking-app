@@ -3,15 +3,12 @@ const { badRequest, notFound } = require("../../utils/error");
 const { isExistBus } = require("../review/utils");
 const { busHasAlreadyStopes } = require("./utils");
 
-
-
-
 /**
  * This function will create a busStopes for a bus
  * @param {string} busID
  * @param {Array} stopes
  * @param { String} sheft
- * @param { String} data 
+ * @param { String} data
  * @returns {Object}
  */
 const create = async ({ busID = "", stopes = [], sheft = "", date = "" }) => {
@@ -27,7 +24,6 @@ const create = async ({ busID = "", stopes = [], sheft = "", date = "" }) => {
   //Check the bus stopes have or not alredy
 
   const hasStopes = await busHasAlreadyStopes(busID);
- 
 
   if (hasStopes) {
     throw badRequest("This bus already has stopes");
@@ -44,83 +40,107 @@ const create = async ({ busID = "", stopes = [], sheft = "", date = "" }) => {
   return busStopes._doc;
 };
 
-
 /**
  * This function will return a busStopes based on busID
  * @param {String} busID
  * @return {Object}
  */
 
-const findSingle = async (busID)=>{
-  if(!busID){
-    throw badRequest('busID must need to get busStopes')
+const findSingle = async (busID) => {
+  if (!busID) {
+    throw badRequest("busID must need to get busStopes");
   }
-  const stopes = await BusStopes.find({busID})
+  const stopes = await BusStopes.find({ busID });
 
-  
+  return stopes[0]?._doc;
+};
 
-  return stopes[0]?._doc
-}
-
-
-const updateOrCreate = async (id,{busID,date,sheft,stopes=[]})=>{
-  if(!id){
-    throw badRequest('busStopes is required to update')
+const updateOrCreate = async (id, { busID, date, sheft, stopes = [] }) => {
+  if (!id) {
+    throw badRequest("busStopes is required to update");
   }
 
-  const busStopes = await BusStopes.findById(id)
+  const busStopes = await BusStopes.findById(id);
 
-
-
-  if(!busStopes){
-    const newBusStopes = await create({busID,stopes,sheft,date})
-    return {busStopes:newBusStopes,code: 201}
+  if (!busStopes) {
+    const newBusStopes = await create({ busID, stopes, sheft, date });
+    return { busStopes: newBusStopes, code: 201 };
   }
 
-  if(stopes.length<2){
-    throw badRequest('Bus stopes need atlest two')
+  if (stopes.length < 2) {
+    throw badRequest("Bus stopes need atlest two");
   }
 
   // TODO: Check the bus is exist or not based on busID.
 
-
-
-
-
   const payloay = {
-    busID:busStopes.busID,
+    busID: busStopes.busID,
     date,
     sheft,
-    stopes
-  }
+    stopes,
+  };
 
-  busStopes.overwrite(payloay)
+  busStopes.overwrite(payloay);
 
-  await busStopes.save()
+  await busStopes.save();
 
-  return {busStopes:busStopes._doc,code:200}
-
-}
-
+  return { busStopes: busStopes._doc, code: 200 };
+};
 
 /**
  * This function will delete a busStopes base on stopesID.
- * @param {string} id 
+ * @param {string} id
  */
 
-const remove = async (id)=>{
-  if(!id){
-    throw badRequest('busID is required to delete!')
+const remove = async (id) => {
+  if (!id) {
+    throw badRequest("busID is required to delete!");
   }
 
-   await BusStopes.findByIdAndDelete(id)
+  await BusStopes.findByIdAndDelete(id);
+};
+
+/**
+ * This function will checked the location is valid or not.
+ * @param {String} busID
+ * @param {String} from
+ * @param {String} to
+ */
+
+const isValidLocation = async (busID, { from, to }) => {
+  const busStopes = await findSingle(busID);
+
+  const location = busStopes?.stopes?.map((item) => item.location);
+
+  if(location.includes(from) && location.includes(to)){
+    return true
+  }
+
+  return false
+};
 
 
+/**
+ * This function will return a time based on user pickup location.
+ * @param {String} busID 
+ * @param {String} from 
+ * @return {String}
+ */
+
+const getPicupTime = async (busID,from)=>{
+  const busStopes = await findSingle(busID)
+  const data = busStopes?.stopes?.filter(item=>item.location===from)[0];
+
+  
+  return data?.time
 }
+
 
 module.exports = {
   create,
   findSingle,
   updateOrCreate,
   remove,
+  isValidLocation,
+  getPicupTime,
 };

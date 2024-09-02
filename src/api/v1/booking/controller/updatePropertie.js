@@ -2,9 +2,9 @@ const bookingService = require('../../../../libs/booking')
 
 const updatePropertie = async(req,res,next)=>{
     const id = req.params.id
-    const {date,from,to,seat,status,busId} = req.body
+    const {date,from,to,seat,status,busID} = req.body
     try {
-        const updatedBooking = await bookingService.updatePropertie(id,{date,from,to,seat,status,busId})
+        const updatedBooking = await bookingService.updatePropertie(id,{date,from,to,seat,status,busID})
         
         const response = {
             code:200,

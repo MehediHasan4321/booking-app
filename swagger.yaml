@@ -904,7 +904,8 @@ paths:
               properties:
                 date:
                   type: string
-                  format: date-time
+                  format: date
+                  example: 2024-07-04
                 to:
                   type: string
                   example: Dhaka
@@ -914,7 +915,7 @@ paths:
                 seat:
                   type: string
                   example: A1
-                busId:
+                busID:
                   type: string
                   example: 1
 
@@ -1735,9 +1736,9 @@ components:
             _id:
               type: string
               example: 1
-            journeyDate:
+            date:
               type: string
-              format: date-time
+              format: date
             seat:
               type: string
               example: A1
@@ -1747,28 +1748,16 @@ components:
             from:
               type: string
               example: Rangpur
-            busId:
+            busID:
               type: string
               example: 1
             status:
               type: string
-              enum: ["pending", "approved", "completed"]
+              enum: ["pending", "approved", "completed",'cancled']
               default: pending
-            userId:
+            userID:
               type: string
               example: 1
-          required:
-            [
-              _id,
-              bookingDate,
-              journeyDate,
-              seat,
-              busId,
-              userId,
-              location,
-              pickup,
-              status,
-            ]
         - $ref: "#/components/schemas/timeStamp"
     'busStopes':
       allOf:
@@ -1800,7 +1789,7 @@ components:
       properties:
         date:
           type: string
-          format: date-time
+          format: date
         to:
           type: string
           example: Gaibandh
@@ -1810,14 +1799,14 @@ components:
         seat:
           type: string
           example: A1
-        busId:  
+        busID:  
           type: string
           example: 1
         status:
           type: string
-          enum: ["pending", "approved", "completed"]
+          enum: ["pending", "approved", "completed","cancled"]
           default: pending
-      required: [date,to,from,seat,busId]
+      required: [date,to,from,seat,busID]
   responses:
     "400":
       description: Bad request

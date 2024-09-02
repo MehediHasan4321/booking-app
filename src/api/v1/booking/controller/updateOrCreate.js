@@ -2,7 +2,7 @@ const bookingService = require("../../../../libs/booking");
 
 const updateOrCreate = async (req, res, next) => {
   const id = req.params.id;
-  const { date, to, from, seat, status = "pending",busId } = req.body;
+  const { date, to, from, seat, status = "pending",busID } = req.body;
 
   try {
     const { booking, code } = await bookingService.updateOrCreate(id,{
@@ -11,8 +11,8 @@ const updateOrCreate = async (req, res, next) => {
       from,
       seat,
       status,
-      busId,
-      userId: req.user._id,
+      busID,
+      userID: req.user._id,
     });
 
     const response = {

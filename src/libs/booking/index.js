@@ -1,7 +1,7 @@
 const { Booking } = require("../../model");
 const { badRequest, notFound } = require("../../utils/error");
 const { updateSeatPropertie, removeDateFromSeat } = require("../seat");
-const { isValidLocation } = require("../bus");
+const { isValidLocation, getPicupTime } = require("../busStopes");
 
 /**
  * FindAll Function return us our booking base on your params
@@ -20,8 +20,7 @@ const findAll = async ({
 }) => {
   const sortStr = `${sortBy === "dsc" ? "-" : ""}${sortKey}`;
 
-  const booking = await Booking.find()
-   
+  const booking = await Booking.find();
 
   return booking;
 };
@@ -48,29 +47,32 @@ const create = async ({ date, to, from, seat, busID, userID }) => {
       "This bus is not going to your location, Plz Select Another"
     );
 
-  //TODO: Check first the bus seat is available or not base on date
+   await updateSeatPropertie(busID, { seat, date });
 
-  await updateSeatPropertie(busID, { seat, date });
+  const time = await getPicupTime(busID, from);
 
   const booking = new Booking({
     busID,
     date,
+    time,
     from,
     to,
     seat,
     status: "pending",
     userID,
   });
-  await booking.save()
-  .then(()=>{
-    // Sent an email to user to confirm to the booking.
-  })
-  .catch(async(e)=>{
-    //sent an email to user that the booking is not confirm.
-    await removeDateFromSeat({busID,seatName:seat,date})
-  })
+  await booking
+    .save()
+    .then(() => {
+      // Sent an email to user to confirm to the booking.
+    })
+    .catch(async (e) => {
+      //sent an email to user that the booking is not confirm.
+      await removeDateFromSeat({ busID, seatName: seat, date });
+    });
   return booking;
 };
+
 
 
 
@@ -83,8 +85,7 @@ const create = async ({ date, to, from, seat, busID, userID }) => {
 
 const findSingle = async (id) => {
   const booking = await Booking.findById(id).populate([
-    { path: "user", select: "name" },
-    { path: "busId", select: "name" },
+    { path: "userID", select: "name" },
   ]);
   if (!booking) throw notFound();
 
@@ -106,11 +107,11 @@ const findSingle = async (id) => {
 
 const updateOrCreate = async (
   id,
-  { date, to, from, seat, busId, userId, status = "pending" }
+  { date, to, from, seat, busID, userID, status = "pending" }
 ) => {
   const booking = await Booking.findById(id);
   if (!booking) {
-    const newBooking = await create({ date, to, from, seat, userId, busId });
+    const newBooking = await create({ date, to, from, seat, userID, busID });
     const data = newBooking._doc;
     return { booking: data, code: 201 };
   }
@@ -120,14 +121,14 @@ const updateOrCreate = async (
     to,
     from,
     seat,
-    busId: booking.busId,
-    user: booking.user,
+    busID: booking.busID,
+    userID: booking.userID,
     status,
   };
 
   if (booking.seat !== seat) {
-    await removeDateFromSeat({ busId, seatName: booking.seat, date });
-    await updateSeatPropertie(busId, { seat, date });
+    await removeDateFromSeat({ busID, seatName: booking.seat, date });
+    await updateSeatPropertie(busID, { seat, date });
   }
 
   booking.overwrite(payload);
@@ -137,10 +138,9 @@ const updateOrCreate = async (
   return { booking: data, code: 200 };
 };
 
-
 // This function will update a single proprerty
 
-const updatePropertie = async (id, { date, to, from, seat, status, busId }) => {
+const updatePropertie = async (id, { date, to, from, seat, status, busID }) => {
   const booking = await Booking.findById(id);
 
   if (!booking) {
@@ -148,13 +148,13 @@ const updatePropertie = async (id, { date, to, from, seat, status, busId }) => {
   }
 
   if (booking.seat !== seat) {
-    await removeDateFromSeat({ busId, seatName: booking.seat, date });
-    await updateSeatPropertie(busId, { seat, date });
+    await removeDateFromSeat({ busID, seatName: booking.seat, date });
+    await updateSeatPropertie(busID, { seat, date });
   }
 
-  if (status === "completed") {
+  if (status === "completed"||status==='cancled') {
     // TODO: Sent a mail to get Rating or Review from the User. How satistied with our services.
-    await removeDateFromSeat({ busId, seatName: booking.seat, date });
+    await removeDateFromSeat({ busID, seatName: booking.seat, date });
   }
 
   (booking.date = date ?? booking.date),
@@ -162,17 +162,16 @@ const updatePropertie = async (id, { date, to, from, seat, status, busId }) => {
     (booking.from = from ?? booking.from),
     (booking.seat = seat ?? booking.seat),
     (booking.status = status ?? booking.status),
-    await booking.save();
+    (booking.time = booking.time);
+  await booking.save();
 
   return booking._doc;
 };
 
-
 /**
  * This function will delete a booking based on bookingId
- * @param {String} id 
+ * @param {String} id
  */
-
 
 const removeBooking = async (id) => {
   if (!id) {
